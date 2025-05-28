@@ -1,0 +1,16 @@
+<svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#2dd4bf" />
+    </linearGradient>
+  </defs>
+  <!-- African mask-inspired logo shape -->
+  <rect width="50" height="50" rx="15" fill="url(#gradient)" />
+  
+  <!-- Stylized Z shape with African pattern -->
+  <path d="M37 15L20 35H30L13 15H37Z" fill="#1e293b" />
+  <path d="M35 17L33 19L31 17H35Z" fill="url(#gradient)" />
+  <path d="M29 17L27 19L25 17H29Z" fill="url(#gradient)" />
+  <path d="M23 17L21 19L19 17H23Z" fill="url(#gradient)" />
+</svg>

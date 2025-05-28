@@ -1,0 +1,36 @@
+<svg width="600" height="600" viewBox="0 0 600 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9333EA" />
+      <stop offset="100%" stop-color="#0D9488" />
+    </linearGradient>
+    <pattern id="pattern" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="2" fill="url(#gradient)" opacity="0.5" />
+      <path d="M15,5 L25,15 L15,25 L5,15 Z" stroke="url(#gradient)" stroke-width="1" fill="none" opacity="0.3" />
+    </pattern>
+  </defs>
+  
+  <!-- Mask-inspired container shape -->
+  <path d="M300,100 C400,100 480,180 480,280 L480,400 C480,500 400,580 300,580 C200,580 120,500 120,400 L120,280 C120,180 200,100 300,100 Z" 
+        fill="url(#gradient)" opacity="0.1" />
+  
+  <!-- Stylized Z shape with African pattern -->
+  <path d="M150,150 L450,150 L150,450 L450,450" 
+        stroke="url(#gradient)" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  
+  <!-- Pattern overlay on Z -->
+  <path d="M150,150 L450,150 L150,450 L450,450" 
+        stroke="url(#pattern)" stroke-width="38" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+  
+  <!-- African pattern elements -->
+  <circle cx="150" cy="150" r="30" fill="url(#gradient)" opacity="0.6" />
+  <circle cx="450" cy="150" r="30" fill="url(#gradient)" opacity="0.6" />
+  <circle cx="150" cy="450" r="30" fill="url(#gradient)" opacity="0.6" />
+  <circle cx="450" cy="450" r="30" fill="url(#gradient)" opacity="0.6" />
+  
+  <!-- Additional decorative elements -->
+  <path d="M150,150 L180,120 L210,150 L180,180 Z" fill="url(#gradient)" opacity="0.4" />
+  <path d="M450,150 L480,120 L510,150 L480,180 Z" fill="url(#gradient)" opacity="0.4" />
+  <path d="M150,450 L180,420 L210,450 L180,480 Z" fill="url(#gradient)" opacity="0.4" />
+  <path d="M450,450 L480,420 L510,450 L480,480 Z" fill="url(#gradient)" opacity="0.4" />
+</svg>
