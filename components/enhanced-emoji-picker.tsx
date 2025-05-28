@@ -304,6 +304,7 @@ export function EnhancedEmojiPicker({ onEmojiSelect, recentEmojis = [] }: EmojiP
   const handleEmojiClick = (emoji: string) => {
     onEmojiSelect(emoji)
     setIsOpen(false)
+    setSearchQuery("") // Clear search when closing
   }
 
   const scrollToCategory = (category: string) => {
@@ -319,13 +320,15 @@ export function EnhancedEmojiPicker({ onEmojiSelect, recentEmojis = [] }: EmojiP
         <Button
           variant="ghost"
           size="icon"
-          className="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 h-8 w-8"
+          className="text-gray-400 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 h-8 w-8"
+          onClick={() => setIsOpen(!isOpen)}
+          type="button"
         >
           <Smile size={20} />
           <span className="sr-only">Add emoji</span>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end">
+      <PopoverContent className="w-80 p-0" align="end" side="top">
         <div className="flex flex-col h-96">
           {/* Search */}
           <div className="p-3 border-b">
@@ -353,6 +356,7 @@ export function EnhancedEmojiPicker({ onEmojiSelect, recentEmojis = [] }: EmojiP
                     : ""
                 }`}
                 onClick={() => scrollToCategory(category)}
+                type="button"
               >
                 {typeof data.icon === "string" ? data.icon : data.icon}
                 <span className="hidden sm:inline">{category}</span>
@@ -382,7 +386,7 @@ export function EnhancedEmojiPicker({ onEmojiSelect, recentEmojis = [] }: EmojiP
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.01 }}
-                        className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
                         onClick={() => handleEmojiClick(emoji)}
                         type="button"
                       >
