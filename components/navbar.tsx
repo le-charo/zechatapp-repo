@@ -106,9 +106,9 @@ export function Navbar() {
               {pathname !== "/login" && pathname !== "/signup" ? (
                 <>
                   <Button asChild variant="ghost" size="sm" className="text-sm font-medium">
-                    <Link href="/login">
+                    <Link href="/login" className="flex items-center">
                       <LogIn className="h-4 w-4 mr-2" />
-                      Login
+                      <span>Login</span>
                     </Link>
                   </Button>
                   <Button
@@ -116,9 +116,9 @@ export function Navbar() {
                     size="sm"
                     className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white"
                   >
-                    <Link href="/signup">
+                    <Link href="/signup" className="flex items-center">
                       <UserPlus className="h-4 w-4 mr-2" />
-                      Sign Up
+                      <span>Sign Up</span>
                     </Link>
                   </Button>
                 </>
@@ -128,16 +128,16 @@ export function Navbar() {
                   size="sm"
                   className="bg-gradient-to-r from-purple-600 to-teal-500 hover:from-purple-700 hover:to-teal-600 text-white"
                 >
-                  <Link href="/signup">
+                  <Link href="/signup" className="flex items-center">
                     <UserPlus className="h-4 w-4 mr-2" />
-                    Sign Up
+                    <span>Sign Up</span>
                   </Link>
                 </Button>
               ) : (
                 <Button asChild variant="ghost" size="sm" className="text-sm font-medium">
-                  <Link href="/login">
+                  <Link href="/login" className="flex items-center">
                     <LogIn className="h-4 w-4 mr-2" />
-                    Login
+                    <span>Login</span>
                   </Link>
                 </Button>
               )}

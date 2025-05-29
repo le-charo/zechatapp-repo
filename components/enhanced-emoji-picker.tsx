@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useRef, useMemo } from "react"
+import type React from "react"
+
+import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Smile, Search, Clock, Heart } from "lucide-react"
+import { Smile, Search, Clock, Heart, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface EmojiPickerProps {
@@ -275,36 +276,54 @@ export function EnhancedEmojiPicker({ onEmojiSelect, recentEmojis = [] }: EmojiP
   const [activeCategory, setActiveCategory] = useState<string>("Recent")
   const [searchQuery, setSearchQuery] = useState("")
   const [isOpen, setIsOpen] = useState(false)
+  const pickerRef = useRef<HTMLDivElement>(null)
   const categoryRefs = useRef<{ [key: string]: HTMLDivElement | null }>({})
 
   // Update recent emojis in categories
-  const categoriesWithRecent = useMemo(() => {
-    const updated = { ...EMOJI_CATEGORIES }
-    updated.Recent.emojis = recentEmojis.slice(0, 24)
-    return updated
-  }, [recentEmojis])
+  const categoriesWithRecent = { ...EMOJI_CATEGORIES }
+  categoriesWithRecent.Recent.emojis = recentEmojis.slice(0, 24)
 
   // Filter emojis based on search
-  const filteredCategories = useMemo(() => {
-    if (!searchQuery) return categoriesWithRecent
-
-    const filtered: typeof categoriesWithRecent = {}
-    Object.entries(categoriesWithRecent).forEach(([category, data]) => {
-      const filteredEmojis = data.emojis.filter((emoji) =>
-        // Simple emoji search - in a real app you'd want emoji names/keywords
-        emoji.includes(searchQuery),
+  const filteredCategories = searchQuery
+    ? Object.entries(categoriesWithRecent).reduce(
+        (acc, [category, data]) => {
+          const filteredEmojis = data.emojis.filter((emoji) => emoji.includes(searchQuery))
+          if (filteredEmojis.length > 0) {
+            acc[category] = { ...data, emojis: filteredEmojis }
+          }
+          return acc
+        },
+        {} as typeof categoriesWithRecent,
       )
-      if (filteredEmojis.length > 0) {
-        filtered[category] = { ...data, emojis: filteredEmojis }
+    : categoriesWithRecent
+
+  // Handle click outside to close picker
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
       }
-    })
-    return filtered
-  }, [categoriesWithRecent, searchQuery])
+    }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [isOpen])
 
   const handleEmojiClick = (emoji: string) => {
     onEmojiSelect(emoji)
     setIsOpen(false)
-    setSearchQuery("") // Clear search when closing
+    setSearchQuery("")
+  }
+
+  const togglePicker = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsOpen(!isOpen)
   }
 
   const scrollToCategory = (category: string) => {
@@ -315,91 +334,101 @@ export function EnhancedEmojiPicker({ onEmojiSelect, recentEmojis = [] }: EmojiP
   }
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-gray-400 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 h-8 w-8"
-          onClick={() => setIsOpen(!isOpen)}
-          type="button"
-        >
-          <Smile size={20} />
-          <span className="sr-only">Add emoji</span>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="end" side="top">
-        <div className="flex flex-col h-96">
-          {/* Search */}
-          <div className="p-3 border-b">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search emojis..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-8"
-              />
-            </div>
-          </div>
+    <div className="relative" ref={pickerRef}>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="text-gray-500 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 h-8 w-8"
+        onClick={togglePicker}
+      >
+        <Smile size={20} />
+        <span className="sr-only">Add emoji</span>
+      </Button>
 
-          {/* Category tabs */}
-          <div className="flex overflow-x-auto p-2 border-b bg-gray-50 dark:bg-gray-800">
-            {Object.entries(filteredCategories).map(([category, data]) => (
-              <Button
-                key={category}
-                variant="ghost"
-                size="sm"
-                className={`px-3 py-2 text-xs whitespace-nowrap flex items-center gap-1 ${
-                  activeCategory === category
-                    ? "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
-                    : ""
-                }`}
-                onClick={() => scrollToCategory(category)}
-                type="button"
-              >
-                {typeof data.icon === "string" ? data.icon : data.icon}
-                <span className="hidden sm:inline">{category}</span>
-              </Button>
-            ))}
-          </div>
-
-          {/* Emoji grid */}
-          <ScrollArea className="flex-1 p-2">
-            <AnimatePresence>
-              {Object.entries(filteredCategories).map(([category, data]) => (
-                <motion.div
-                  key={category}
-                  ref={(el) => (categoryRefs.current[category] = el)}
-                  className="mb-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
+      {/* Emoji Picker Dropdown */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 10 }}
+            transition={{ duration: 0.15 }}
+            className="absolute bottom-full right-0 mb-2 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 w-80 z-50"
+          >
+            <div className="flex flex-col h-96">
+              {/* Header with close button */}
+              <div className="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+                <h3 className="text-sm font-medium">Emoji Picker</h3>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={() => setIsOpen(false)}
                 >
-                  <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">{category}</h3>
-                  <div className="grid grid-cols-8 gap-1">
-                    {data.emojis.map((emoji, index) => (
-                      <motion.button
-                        key={`${category}-${emoji}-${index}`}
-                        whileHover={{ scale: 1.2 }}
-                        whileTap={{ scale: 0.9 }}
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.01 }}
-                        className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
-                        onClick={() => handleEmojiClick(emoji)}
-                        type="button"
-                      >
-                        {emoji}
-                      </motion.button>
-                    ))}
+                  <X size={16} />
+                </Button>
+              </div>
+
+              {/* Search */}
+              <div className="p-3 border-b border-gray-200 dark:border-gray-700">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input
+                    placeholder="Search emojis..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 h-8"
+                  />
+                </div>
+              </div>
+
+              {/* Category tabs */}
+              <div className="flex overflow-x-auto p-2 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+                {Object.entries(filteredCategories).map(([category, data]) => (
+                  <Button
+                    key={category}
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className={`px-3 py-2 text-xs whitespace-nowrap flex items-center gap-1 ${
+                      activeCategory === category
+                        ? "bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"
+                        : ""
+                    }`}
+                    onClick={() => scrollToCategory(category)}
+                  >
+                    {typeof data.icon === "string" ? data.icon : data.icon}
+                    <span className="hidden sm:inline">{category}</span>
+                  </Button>
+                ))}
+              </div>
+
+              {/* Emoji grid */}
+              <ScrollArea className="flex-1 p-2">
+                {Object.entries(filteredCategories).map(([category, data]) => (
+                  <div key={category} ref={(el) => (categoryRefs.current[category] = el)} className="mb-4">
+                    <h3 className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-2 px-1">{category}</h3>
+                    <div className="grid grid-cols-8 gap-1">
+                      {data.emojis.map((emoji, index) => (
+                        <button
+                          key={`${category}-${emoji}-${index}`}
+                          type="button"
+                          className="w-8 h-8 flex items-center justify-center text-lg hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors cursor-pointer"
+                          onClick={() => handleEmojiClick(emoji)}
+                        >
+                          {emoji}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </ScrollArea>
-        </div>
-      </PopoverContent>
-    </Popover>
+                ))}
+              </ScrollArea>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   )
 }
